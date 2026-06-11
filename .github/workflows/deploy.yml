@@ -1,0 +1,36 @@
+name: Deploy Honeypot Bancario
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_IP }} \
+            "EC2_IP='${{ secrets.EC2_IP }}' \
+             DATABASE_URL='${{ secrets.DATABASE_URL }}' \
+             GEOIP_DB_PATH='${{ secrets.GEOIP_DB_PATH }}' \
+             ABUSEIPDB_API_KEY='${{ secrets.ABUSEIPDB_API_KEY }}' \
+             VIRUSTOTAL_API_KEY='${{ secrets.VIRUSTOTAL_API_KEY }}' \
+             SMTP_HOST='${{ secrets.SMTP_HOST }}' \
+             SMTP_PORT='${{ secrets.SMTP_PORT }}' \
+             SMTP_USER='${{ secrets.SMTP_USER }}' \
+             SMTP_PASSWORD='${{ secrets.SMTP_PASSWORD }}' \
+             SMTP_FROM='${{ secrets.SMTP_FROM }}' \
+             JWT_SECRET_KEY='${{ secrets.JWT_SECRET_KEY }}' \
+             bash ~/honeypot-bancario/deploy.sh"
