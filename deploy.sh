@@ -5,7 +5,7 @@ echo "[+] Entrando en el proyecto..."
 cd ~/honeypot-bancario || exit 1
 
 echo "[+] Actualizando código..."
-git pull origin main || echo "[X] Falló git pull"
+git pull origin master || echo "[X] Falló git pull"
 
 # ============================================================
 # BACKEND — FastAPI + Python
