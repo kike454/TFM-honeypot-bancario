@@ -5,6 +5,7 @@ chmod +x "$0"
 
 echo "[+] Entrando en el proyecto..."
 cd ~/honeypot-bancario || exit 1
+git config core.fileMode false
 git checkout -- deploy.sh 2>/dev/null || true
 
 echo "[+] Actualizando código..."
