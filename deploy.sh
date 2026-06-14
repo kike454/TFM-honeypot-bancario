@@ -5,6 +5,7 @@ chmod +x "$0"
 
 echo "[+] Entrando en el proyecto..."
 cd ~/honeypot-bancario || exit 1
+git checkout -- deploy.sh 2>/dev/null || true
 
 echo "[+] Actualizando código..."
 git pull origin master || echo "[X] Falló git pull"
