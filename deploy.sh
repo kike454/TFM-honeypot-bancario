@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+chmod +x "$0"
+
 echo "[+] Entrando en el proyecto..."
 cd ~/honeypot-bancario || exit 1
 
