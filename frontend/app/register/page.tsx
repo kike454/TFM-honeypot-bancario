@@ -29,7 +29,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/auth/register", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre, email, password }),
@@ -52,7 +52,7 @@ export default function RegisterPage() {
     ev.preventDefault();
     setLoading(true); setError("");
     try {
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/auth/otp/verify", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/otp/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, codigo: otp }),

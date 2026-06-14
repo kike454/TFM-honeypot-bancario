@@ -42,7 +42,7 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/auth/login", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -66,7 +66,7 @@ export default function LoginPage() {
     setLoading(true); setError("");
     try {
       const emailGuardado = localStorage.getItem("fc_email") || email;
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL}/auth/otp/verify", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/otp/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailGuardado, codigo: otp }),
