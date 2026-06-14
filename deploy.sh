@@ -51,7 +51,7 @@ cd ../frontend
 
 echo "[+] Creando .env.local del frontend..."
 cat > .env.local << ENVEOF
-NEXT_PUBLIC_API_URL=http://${EC2_IP}:8000
+NEXT_PUBLIC_API_URL=https://finconnect.store/api
 ENVEOF
 
 echo "[+] Instalando dependencias frontend..."
