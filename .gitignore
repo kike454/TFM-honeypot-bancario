@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!backend/.env.example
 
 # vercel
 .vercel
@@ -41,11 +42,11 @@ yarn-error.log*
 next-env.d.ts
 backend/.env
 backend/data/*.mmdb
+!backend/data/GeoLite2-City_20260515/GeoLite2-City.mmdb
 backend/venv/
 backend/__pycache__/
 backend/**/__pycache__/
 backend/**/*.pyc
-backend/.env
 frontend/node_modules/
 frontend/.next/
 dashboard/node_modules/
