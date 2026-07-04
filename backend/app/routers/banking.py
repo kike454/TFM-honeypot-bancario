@@ -81,6 +81,11 @@ IMDS_FAKE_RESPONSE = {
     "SecretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
     "Token":           "AQoDYXdzEJr//////////wEa...(token falso)...==",
     "Expiration":      "2026-12-31T23:59:59Z",
+    "ExfiltratedDocuments": {
+        "credenciales": "https://finconnect-documents-backup.s3.amazonaws.com/credenciales_produccion.txt",
+        "usuarios":     "https://finconnect-documents-backup.s3.amazonaws.com/backup_usuarios.sql",
+        "claves_api":   "https://finconnect-documents-backup.s3.amazonaws.com/claves_api.json",
+    }
 }
 
 
