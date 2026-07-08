@@ -7,10 +7,10 @@ import uuid
 from datetime import datetime, timezone
 from sqlalchemy import (
     Column, String, Integer, Float, Boolean,
-    DateTime, JSON, Text
+    DateTime, JSON, Text, ForeignKey
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, relationship
 
 
 class Base(DeclarativeBase):
@@ -21,6 +21,12 @@ class Evento(Base):
     __tablename__ = "eventos"
 
     id              = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    usuario_id      = Column(
+        UUID(as_uuid=True),
+        ForeignKey("usuarios.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     timestamp_utc   = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     ip_origen       = Column(String(45), nullable=False, index=True)
     puerto_origen   = Column(Integer)
@@ -48,6 +54,8 @@ class Evento(Base):
     total_reports    = Column(Integer, default=0)
     vt_malicious     = Column(Integer, default=0)
     vt_suspicious    = Column(Integer, default=0)
+
+    usuario = relationship("Usuario", back_populates="eventos")
 
 
 class Credencial(Base):
@@ -98,6 +106,7 @@ class AuthCode(Base):
     usado         = Column(Boolean, default=False)
     expires_at    = Column(DateTime(timezone=True))
 
+
 class Usuario(Base):
     __tablename__ = "usuarios"
 
@@ -108,6 +117,8 @@ class Usuario(Base):
     password_hash = Column(String(200), nullable=False)
     activo        = Column(Boolean, default=True)
     verificado    = Column(Boolean, default=False)
+
+    eventos = relationship("Evento", back_populates="usuario")
 
 
 # ============================================================

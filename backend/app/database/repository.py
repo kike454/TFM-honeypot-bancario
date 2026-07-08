@@ -15,10 +15,11 @@ logger = structlog.get_logger(__name__)
 # EVENTOS
 # ============================================================
 
-def guardar_evento(db: Session, evento: dict) -> None:
+def guardar_evento(db: Session, evento: dict, usuario_id=None) -> None:
     try:
         geo = evento.get("geo", {})
         db_evento = Evento(
+            usuario_id      = usuario_id or evento.get("usuario_id"),
             ip_origen       = evento.get("ip_origen"),
             puerto_origen   = evento.get("puerto_origen"),
             metodo_http     = evento.get("metodo_http"),
