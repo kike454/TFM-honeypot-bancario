@@ -144,6 +144,12 @@ async def get_document(filename: str, request: Request, db: Session = Depends(ge
     ip           = request.client.host if request.client else "unknown"
     es_traversal = ".." in filename or "/" in filename
 
+    logger.warning("alerta_seguridad",
+        tipo="PATH_TRAVERSAL" if es_traversal else "DOCUMENT_ACCESS",
+        ip_origen=ip, filename=filename,
+        severidad="critical" if es_traversal else "medium",
+        descripcion=f"Acceso a documento: {filename}")
+
     guardar_alerta(db=db, ip=ip,
         tipo="PATH_TRAVERSAL" if es_traversal else "DOCUMENT_ACCESS",
         descripcion=f"Acceso a documento: {filename}",
@@ -164,6 +170,12 @@ async def password_reset(body: PasswordResetRequest, request: Request, db: Sessi
     from app.database.models import Usuario
     ip  = request.client.host if request.client else "unknown"
     xss = "<script" in body.email or "javascript:" in body.email.lower()
+
+    logger.warning("alerta_seguridad",
+        tipo="XSS" if xss else "PASSWORD_RESET",
+        ip_origen=ip, email=body.email,
+        severidad="high" if xss else "low",
+        descripcion=f"Password reset solicitado para: {body.email}")
 
     guardar_alerta(db=db, ip=ip,
         tipo="XSS" if xss else "PASSWORD_RESET",
@@ -186,6 +198,12 @@ async def preview(url: str, request: Request, db: Session = Depends(get_db)):
     es_interna = any(ip_priv in url for ip_priv in URLS_INTERNAS)
     es_imds    = "169.254.169.254" in url
 
+    logger.warning("alerta_seguridad",
+        tipo="SSRF_IMDS" if es_imds else "SSRF" if es_interna else "PREVIEW",
+        ip_origen=ip, url=url,
+        severidad="critical" if es_imds else "high" if es_interna else "low",
+        descripcion=f"Preview solicitado: {url}")
+
     guardar_alerta(db=db, ip=ip,
         tipo="SSRF_IMDS" if es_imds else "SSRF" if es_interna else "PREVIEW",
         descripcion=f"Preview solicitado: {url}",
@@ -199,3 +217,4 @@ async def preview(url: str, request: Request, db: Session = Depends(get_db)):
 
     return {"url": url, "title": "FinConnect - Documento externo",
             "description": "Previsualización no disponible", "status": "ok"}
+ 
