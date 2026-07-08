@@ -4,6 +4,8 @@
 # cada request entrante sin tocar los routers
 # ============================================================
 
+import os
+import jwt  # PyJWT
 import structlog
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -14,12 +16,8 @@ from app.database.models import Usuario
 
 from app.services.capture import capture_request
 
-# Si ya tienes un helper para decodificar el JWT, úsalo en su lugar.
-import jwt  # PyJWT
-
 logger = structlog.get_logger(__name__)
 
-# Ajusta a tu configuración real (idealmente desde variables de entorno / settings)
 JWT_SECRET = os.getenv("JWT_SECRET_KEY")
 JWT_ALGORITHM = "HS256"
 
@@ -53,6 +51,9 @@ class CaptureMiddleware(BaseHTTPMiddleware):
 
         request._receive = receive
 
+        # Limpiar contexto por si quedara algo de una petición anterior
+        structlog.contextvars.clear_contextvars()
+
         try:
             evento = await capture_request(request)
 
@@ -65,6 +66,13 @@ class CaptureMiddleware(BaseHTTPMiddleware):
                 if sub:
                     usuario = db.query(Usuario).filter(Usuario.email == sub).first()
                     usuario_id = usuario.id if usuario else None
+
+                # Bindear el usuario al contexto: todas las líneas de log
+                # de esta petición (banking, otp, etc.) llevarán estos campos.
+                structlog.contextvars.bind_contextvars(
+                    usuario=sub or "anon",
+                    usuario_id=str(usuario_id) if usuario_id else None,
+                )
 
                 guardar_evento(db, evento, usuario_id=usuario_id)
             finally:
@@ -80,5 +88,8 @@ class CaptureMiddleware(BaseHTTPMiddleware):
             status_code=response.status_code,
             metodo=request.method,
         )
+
+        # Limpiar el contexto para no filtrarlo a la siguiente petición
+        structlog.contextvars.clear_contextvars()
 
         return response
