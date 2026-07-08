@@ -4,22 +4,20 @@
 # cada request entrante sin tocar los routers
 # ============================================================
 
-import os
-import jwt  # PyJWT
 import structlog
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
+
+from jose import jwt
+
 from app.database.connection import SessionLocal
 from app.database.repository import guardar_evento
 from app.database.models import Usuario
-
+from app.services.token import SECRET_KEY, ALGORITHM
 from app.services.capture import capture_request
 
 logger = structlog.get_logger(__name__)
-
-JWT_SECRET = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = "HS256"
 
 
 def _extraer_sub(request: Request) -> str | None:
@@ -33,8 +31,8 @@ def _extraer_sub(request: Request) -> str | None:
         # aunque el token esté caducado (token replay).
         payload = jwt.decode(
             token,
-            JWT_SECRET,
-            algorithms=[JWT_ALGORITHM],
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
             options={"verify_exp": False},
         )
         return payload.get("sub")
