@@ -65,11 +65,23 @@ class CaptureMiddleware(BaseHTTPMiddleware):
                     usuario = db.query(Usuario).filter(Usuario.email == sub).first()
                     usuario_id = usuario.id if usuario else None
 
-                # Bindear el usuario al contexto: todas las líneas de log
-                # de esta petición (banking, otp, etc.) llevarán estos campos.
+                # Geolocalización ya calculada por capture_request
+                geo = evento.get("geo", {}) or {}
+
+                # Bindear usuario + geo al contexto: todas las líneas de log
+                # de esta petición (incluida la alerta de token_reutilizado
+                # que emite token.py) heredarán estos campos.
                 structlog.contextvars.bind_contextvars(
                     usuario=sub or "anon",
                     usuario_id=str(usuario_id) if usuario_id else None,
+                    geo_country_name=geo.get("country_name"),
+                    geo_is_tor=geo.get("is_tor", False),
+                    geo_is_proxy=geo.get("is_proxy", False),
+                    geo_is_hosting=geo.get("is_hosting", False),
+                    geo_threat_level=geo.get("threat_level"),
+                    geo_abuse_score=geo.get("abuse_score", 0),
+                    geo_usage_type=geo.get("usage_type"),
+                    geo_asn=geo.get("asn"),
                 )
 
                 guardar_evento(db, evento, usuario_id=usuario_id)
