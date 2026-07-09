@@ -38,6 +38,16 @@ def _enviar_otp_reset(email: str, nombre: str) -> None:
     finally:
         db.close()
 
+def detectar_xss(valor: str) -> bool:
+    v = valor.lower()
+    patrones = [
+        r"<\s*script",           # <script, <SCRIPT, < script
+        r"javascript:",          # protocolo javascript
+        r"on\w+\s*=",            # onerror=, onload=, onmouseover=...
+        r"<\s*svg[^>]*\bon\w+",  # svg con manejador de evento
+        r"<\s*iframe",           # iframe
+    ]
+    return any(re.search(p, v) for p in patrones)
 
 # ============================================================
 # MODELOS, clases que definen la estructura y validación del body que llega en cada request. 
@@ -169,7 +179,8 @@ async def get_document(filename: str, request: Request, db: Session = Depends(ge
 async def password_reset(body: PasswordResetRequest, request: Request, db: Session = Depends(get_db)):
     from app.database.models import Usuario
     ip  = request.client.host if request.client else "unknown"
-    xss = "<script" in body.email or "javascript:" in body.email.lower()
+    #xss = "<script" in body.email or "javascript:" in body.email.lower()
+    xss = detectar_xss(body.email)
 
     logger.warning("alerta_seguridad",
         tipo="XSS" if xss else "PASSWORD_RESET",
