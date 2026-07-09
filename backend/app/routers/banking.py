@@ -13,6 +13,7 @@ from app.database.connection import get_db, SessionLocal
 from app.database.repository import guardar_credencial, guardar_alerta
 from app.database.models import OTP
 from app.services.email import generar_codigo_otp, enviar_otp_email
+import re
 
 logger = structlog.get_logger(__name__)
 
